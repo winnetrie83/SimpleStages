@@ -1,0 +1,25 @@
+{
+  "stage": "iron_age",
+  "display_name": "Iron Age",
+
+  "recipes": [
+    "minecraft:iron_pickaxe",
+    "minecraft:iron_helmet"
+  ],
+
+  "items": [
+    "minecraft:iron_pickaxe",
+    "minecraft:iron_helmet"
+  ],
+
+  "blocks": [
+    {
+      "block": "minecraft:iron_ore",
+      "mask": "minecraft:stone"
+    },
+    {
+      "block": "minecraft:deepslate_iron_ore",
+      "mask": "minecraft:deepslate"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "itemGroup.simplestages": "Example Mod Tab",
+  "block.simplestages.example_block": "Example Block",
+  "item.simplestages.example_item": "Example Item",
+
+  "simplestages.configuration.title": "Simple Stages Configs",
+  "simplestages.configuration.section.simplestages.common.toml": "Simple Stages Configs",
+  "simplestages.configuration.section.simplestages.common.toml.title": "Simple Stages Configs",
+  "simplestages.configuration.items": "Item List",
+  "simplestages.configuration.logDirtBlock": "Log Dirt Block",
+  "simplestages.configuration.magicNumberIntroduction": "Magic Number Text",
+  "simplestages.configuration.magicNumber": "Magic Number",
+  
+  "item.simplestages.unidentified_item": "Unidentified Item"
+}

@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "package": "be.winnetrie.mod.simplestages.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "mixins": [
+    "CraftingMenuMixin"
+  ],
+  "client": [
+    "ItemStackClientMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}
