@@ -2,24 +2,61 @@
   "stage": "iron_age",
   "display_name": "Iron Age",
 
+  "messages": {
+    "item_use": "You need {stage} to use {item}.",
+    "block_use": "You need {stage} to interact with this block.",
+    "dimension": "You need {stage} to enter this dimension.",
+    "mob_use": "You need {stage} before interacting with this creature."
+  },
+
   "recipes": [
     "minecraft:iron_pickaxe",
-    "minecraft:iron_helmet"
+    "minecraft:iron_helmet",
+    "minecraft:bucket"
   ],
 
   "items": [
     "minecraft:iron_pickaxe",
-    "minecraft:iron_helmet"
+    "minecraft:iron_ore",
+    "minecraft:iron_sword",
+    "minecraft:iron_helmet",
+    "minecraft:bucket",
+    "minecraft:diamond"
   ],
 
   "blocks": [
     {
-      "block": "minecraft:iron_ore",
-      "mask": "minecraft:stone"
+      "block": "minecraft:iron_ore"
     },
     {
-      "block": "minecraft:deepslate_iron_ore",
-      "mask": "minecraft:deepslate"
+      "block": "minecraft:deepslate_iron_ore"
+    },
+    {
+      "block": "minecraft:iron_block"
+    }
+  ],
+
+  "dimensions": [
+    "minecraft:the_nether",
+    "minecraft:the_end"
+  ],
+
+  "mobs": [
+    {
+      "mob": "minecraft:blaze",
+      "radius": 128
+    },
+    {
+      "mob": "minecraft:enderman",
+      "radius": 96
+    },
+    {
+      "mob": "minecraft:wither_skeleton",
+      "radius": 128
+    },
+    {
+      "mob": "minecraft:piglin_brute",
+      "radius": 128
     }
   ]
 }

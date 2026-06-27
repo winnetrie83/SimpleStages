@@ -1,10 +1,7 @@
 package be.winnetrie.mod.simplestages.network;
 
-
 import net.neoforged.bus.api.SubscribeEvent;
-
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-
 
 public class NetworkEvents {
 
@@ -15,6 +12,11 @@ public class NetworkEvents {
                         SyncStagesPayload.TYPE,
                         SyncStagesPayload.STREAM_CODEC,
                         SyncStagesPayload::handle
+                )
+                .playToClient(
+                        SyncStageDefinitionsPayload.TYPE,
+                        SyncStageDefinitionsPayload.STREAM_CODEC,
+                        SyncStageDefinitionsPayload::handle
                 );
     }
 }

@@ -4,11 +4,11 @@ import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
 
-
-import be.winnetrie.mod.simplestages.event.ClientTooltipEvents;
 import be.winnetrie.mod.simplestages.event.LockedItemEvents;
+import be.winnetrie.mod.simplestages.event.MobEvents;
 import be.winnetrie.mod.simplestages.event.PlayerStageEvents;
 import be.winnetrie.mod.simplestages.network.NetworkEvents;
+import be.winnetrie.mod.simplestages.registry.ModLootModifiers;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -26,9 +26,15 @@ public class SimpleStages {
 
         modEventBus.addListener(NetworkEvents::registerPayloads);
 
-        NeoForge.EVENT_BUS.register(ClientTooltipEvents.class);
+        ModLootModifiers.register(modEventBus);
+
+        
 
         NeoForge.EVENT_BUS.register(LockedItemEvents.class);
+
+        NeoForge.EVENT_BUS.register(MobEvents.class);
+
+        
 
         NeoForge.EVENT_BUS.register(PlayerStageEvents.class);
 

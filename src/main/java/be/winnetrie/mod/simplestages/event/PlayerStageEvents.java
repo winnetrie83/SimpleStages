@@ -10,6 +10,7 @@ public class PlayerStageEvents {
     @SubscribeEvent
     public static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
+            StageManager.syncDefinitions(player);
             StageManager.sync(player);
         }
     }

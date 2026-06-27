@@ -28,7 +28,9 @@ public class ItemEvents {
             return;
         }
 
-        player.sendSystemMessage(Component.literal("You have not identified this item yet."));
+        player.sendSystemMessage(
+                Component.literal(StageLockHelper.getItemUseMessage(stack))
+        );
 
         event.setCanceled(true);
         event.setCancellationResult(InteractionResult.FAIL);

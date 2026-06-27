@@ -34,7 +34,7 @@ public class LockedItemEvents {
             return;
         }
 
-        sendLockedMessage(player, "Requires Stage: " + StageLockHelper.getRequiredStage(event.getItemStack()));
+        sendLockedMessage(player, StageLockHelper.getItemUseMessage(event.getItemStack()));
 
         event.setCanceled(true);
         event.setCancellationResult(InteractionResult.FAIL);
@@ -51,7 +51,7 @@ public class LockedItemEvents {
         Identifier blockId = BuiltInRegistries.BLOCK.getKey(block);
 
         if (StageLockHelper.isBlockLocked(player, blockId)) {
-            sendLockedMessage(player, "Requires Stage: " + StageLockHelper.getRequiredStageForBlock(blockId));
+            sendLockedMessage(player, StageLockHelper.getBlockUseMessage(blockId));
 
             event.setUseBlock(TriState.FALSE);
             event.setUseItem(TriState.FALSE);
@@ -64,7 +64,7 @@ public class LockedItemEvents {
             return;
         }
 
-        sendLockedMessage(player, "Requires Stage: " + StageLockHelper.getRequiredStage(event.getItemStack()));
+        sendLockedMessage(player, StageLockHelper.getItemUseMessage(event.getItemStack()));
 
         event.setUseItem(TriState.FALSE);
         event.setCanceled(true);
@@ -82,7 +82,7 @@ public class LockedItemEvents {
         Identifier blockId = BuiltInRegistries.BLOCK.getKey(block);
 
         if (StageLockHelper.isBlockLocked(player, blockId)) {
-            sendLockedMessage(player, "Requires Stage: " + StageLockHelper.getRequiredStageForBlock(blockId));
+            sendLockedMessage(player, StageLockHelper.getBlockUseMessage(blockId));
 
             event.setUseItem(TriState.FALSE);
             event.setCanceled(true);
@@ -93,7 +93,7 @@ public class LockedItemEvents {
             return;
         }
 
-        sendLockedMessage(player, "Requires Stage: " + StageLockHelper.getRequiredStage(event.getItemStack()));
+        sendLockedMessage(player, StageLockHelper.getItemUseMessage(event.getItemStack()));
 
         event.setUseItem(TriState.FALSE);
         event.setCanceled(true);
@@ -107,7 +107,7 @@ public class LockedItemEvents {
             return;
         }
 
-        sendLockedMessage(player, "Requires Stage: " + StageLockHelper.getRequiredStage(player.getMainHandItem()));
+        sendLockedMessage(player, StageLockHelper.getItemUseMessage(player.getMainHandItem()));
 
         event.setCanceled(true);
     }
@@ -122,7 +122,7 @@ public class LockedItemEvents {
             return;
         }
 
-        sendLockedMessage(player, "Requires Stage: " + StageLockHelper.getRequiredStage(event.getItem()));
+        sendLockedMessage(player, StageLockHelper.getItemUseMessage(event.getItem()));
         event.setCanceled(true);
     }
 
@@ -136,7 +136,7 @@ public class LockedItemEvents {
             return;
         }
 
-        sendLockedMessage(player, "Requires Stage: " + StageLockHelper.getRequiredStage(event.getTo()));
+        sendLockedMessage(player, StageLockHelper.getItemUseMessage(event.getTo()));
     }
 
     @SubscribeEvent
@@ -162,17 +162,30 @@ public class LockedItemEvents {
 
             hasLockedArmor = true;
 
-            ItemStack copy = equipped.copy();
-
             player.setItemSlot(slot, ItemStack.EMPTY);
 
-            if (!player.getInventory().add(copy)) {
-                serverPlayer.drop(copy, false);
+            boolean alreadyHasSameItem = false;
+
+            for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+                ItemStack inventoryStack = player.getInventory().getItem(i);
+
+                if (ItemStack.isSameItemSameComponents(inventoryStack, equipped)) {
+                    alreadyHasSameItem = true;
+                    break;
+                }
+            }
+
+            if (!alreadyHasSameItem) {
+                ItemStack copy = equipped.copy();
+
+                if (!player.getInventory().add(copy)) {
+                    serverPlayer.drop(copy, false);
+                }
             }
 
             serverPlayer.containerMenu.broadcastChanges();
 
-            sendArmorLockedMessage(serverPlayer, StageLockHelper.getRequiredStage(equipped));
+            sendArmorLockedMessage(serverPlayer, StageLockHelper.getItemUseMessage(equipped));
         }
 
         if (!hasLockedArmor) {
@@ -186,9 +199,9 @@ public class LockedItemEvents {
         }
     }
 
-    private static void sendArmorLockedMessage(ServerPlayer player, String requiredStage) {
+    private static void sendArmorLockedMessage(ServerPlayer player, String message) {
         if (ARMOR_MESSAGE_COOLDOWN.add(player.getUUID())) {
-            player.sendOverlayMessage(Component.literal("Requires Stage: " + requiredStage));
+            player.sendOverlayMessage(Component.literal(message));
         }
     }
 }

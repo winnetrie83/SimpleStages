@@ -1,7 +1,9 @@
 package be.winnetrie.mod.simplestages.stage;
 
 import be.winnetrie.mod.simplestages.SimpleStages;
+import be.winnetrie.mod.simplestages.network.SyncStageDefinitionsPayload;
 import be.winnetrie.mod.simplestages.network.SyncStagesPayload;
+import be.winnetrie.mod.simplestages.stage.data.StageDefinitionManager;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -75,6 +77,16 @@ public class StageManager {
         PacketDistributor.sendToPlayer(
                 player,
                 new SyncStagesPayload(getStages(player))
+        );
+    }
+
+    public static void syncDefinitions(ServerPlayer player) {
+        PacketDistributor.sendToPlayer(
+            player,
+            new SyncStageDefinitionsPayload(
+                StageDefinitionManager.getItemStagesForSync(),
+                StageDefinitionManager.getDisplayNamesForSync()
+            )
         );
     }
 }
