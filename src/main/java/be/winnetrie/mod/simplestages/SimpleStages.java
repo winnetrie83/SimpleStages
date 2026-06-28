@@ -37,6 +37,7 @@ public class SimpleStages {
         
 
         NeoForge.EVENT_BUS.register(PlayerStageEvents.class);
+        
 
         
 

@@ -12,6 +12,9 @@ public class ReloadEvents {
 
     @SubscribeEvent
     public static void onAddServerReloadListeners(AddServerReloadListenersEvent event) {
+
+        SimpleStages.LOGGER.info("Registering Simple Stages reload listener");
+
         event.addListener(
                 Identifier.fromNamespaceAndPath(SimpleStages.MODID, "stage_definitions"),
                 new StageDefinitionReloadListener()
