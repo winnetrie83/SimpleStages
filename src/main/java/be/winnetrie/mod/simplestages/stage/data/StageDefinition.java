@@ -15,7 +15,8 @@ public record StageDefinition(
         List<Identifier> items,
         List<BlockMaskEntry> blocks,
         List<Identifier> dimensions,
-        List<MobStageEntry> mobs
+        List<MobStageEntry> mobs,
+        List<StructureStageEntry> structures
 ) {
     public static final Codec<StageDefinition> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
@@ -41,7 +42,9 @@ public record StageDefinition(
                             .forGetter(StageDefinition::dimensions),
 
                     MobStageEntry.CODEC.listOf().optionalFieldOf("mobs", List.of())
-                            .forGetter(StageDefinition::mobs)
+                            .forGetter(StageDefinition::mobs),
+                    StructureStageEntry.CODEC.listOf().optionalFieldOf("structures", List.of())
+                            .forGetter(StageDefinition::structures)
             ).apply(instance, StageDefinition::new)
     );
 

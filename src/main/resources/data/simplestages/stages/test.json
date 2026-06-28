@@ -46,7 +46,7 @@
       "mob": "minecraft:villager",
       "radius": 128
     },
-	{
+    {
       "mob": "minecraft:blaze",
       "radius": 128
     },
@@ -61,6 +61,31 @@
     {
       "mob": "minecraft:piglin_brute",
       "radius": 128
+    }
+  ],
+
+  "structures": [
+    {
+      "structure": "minecraft:village_plains",
+      "buffer": 5
+    },
+    {
+      "structure": "minecraft:pillager_outpost",
+      "buffer": 6
+    },
+    {
+      "structure": "minecraft:jungle_temple",
+      "buffer": 4
+    },
+    {
+      "structure": "minecraft:desert_pyramid",
+      "buffer": 4
+    },
+    {
+      "structure": "minecraft:igloo"
+    },
+    {
+      "structure": "minecraft:swamp_hut"
     }
   ]
 }

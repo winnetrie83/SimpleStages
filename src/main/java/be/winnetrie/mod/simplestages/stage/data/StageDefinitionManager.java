@@ -14,6 +14,7 @@ public class StageDefinitionManager {
     private static final Map<Identifier, MobStageEntry> MOB_LOCKS = new HashMap<>();
     private static final Map<String, StageDefinition> STAGES = new HashMap<>();
     private static final Map<String, String> DISPLAY_NAMES = new HashMap<>();
+    private static final Map<Identifier, StructureLockEntry> STRUCTURE_LOCKS = new HashMap<>();
 
     public static void clear() {
         RECIPE_LOCKS.clear();
@@ -23,6 +24,7 @@ public class StageDefinitionManager {
         MOB_LOCKS.clear();
         STAGES.clear();
         DISPLAY_NAMES.clear();
+        STRUCTURE_LOCKS.clear();
     }
 
     public static void addDefinition(StageDefinition definition) {
@@ -49,6 +51,10 @@ public class StageDefinitionManager {
 
         for (MobStageEntry mob : definition.mobs()) {
             MOB_LOCKS.put(mob.mob(), mob);
+        }
+
+        for (StructureStageEntry structure : definition.structures()) {
+            STRUCTURE_LOCKS.put(structure.structure(), new StructureLockEntry(stage, structure.bufferOrDefault()));
         }
     }
 
@@ -189,5 +195,19 @@ public class StageDefinitionManager {
             Identifier id = Identifier.parse(itemId);
             ITEM_LOCKS.put(id, new ItemMaskEntry(id, stage));
         });
+    }
+
+    public static StructureLockEntry getStructureLock(Identifier structureId) {
+        return STRUCTURE_LOCKS.get(structureId);
+        }
+
+    public static Map<Identifier, StructureLockEntry> getStructureLocks() {
+        return new HashMap<>(STRUCTURE_LOCKS);
+    }
+
+    public record StructureLockEntry(
+        String stage,
+        int buffer
+        ) {
     }
 }
