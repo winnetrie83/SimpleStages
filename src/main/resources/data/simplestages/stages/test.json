@@ -43,6 +43,10 @@
 
   "mobs": [
     {
+      "mob": "minecraft:villager",
+      "radius": 128
+    },
+	{
       "mob": "minecraft:blaze",
       "radius": 128
     },

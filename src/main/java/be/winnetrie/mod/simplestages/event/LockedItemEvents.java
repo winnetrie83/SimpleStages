@@ -164,23 +164,10 @@ public class LockedItemEvents {
 
             player.setItemSlot(slot, ItemStack.EMPTY);
 
-            boolean alreadyHasSameItem = false;
+            ItemStack copy = equipped.copy();
 
-            for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-                ItemStack inventoryStack = player.getInventory().getItem(i);
-
-                if (ItemStack.isSameItemSameComponents(inventoryStack, equipped)) {
-                    alreadyHasSameItem = true;
-                    break;
-                }
-            }
-
-            if (!alreadyHasSameItem) {
-                ItemStack copy = equipped.copy();
-
-                if (!player.getInventory().add(copy)) {
-                    serverPlayer.drop(copy, false);
-                }
+            if (!player.getInventory().add(copy)) {
+                serverPlayer.drop(copy, false);
             }
 
             serverPlayer.containerMenu.broadcastChanges();
