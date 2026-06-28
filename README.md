@@ -2,7 +2,7 @@
 
 Simple Stages is a lightweight, highly configurable progression system for Minecraft modpacks built for NeoForge.
 
-It allows modpack creators to lock recipes, items, blocks, dimensions, mobs, and more behind progression stages using simple JSON files.
+It allows modpack creators to lock recipes, items, blocks, dimensions, mobs, structures, and more behind progression stages using simple JSON files.
 
 ---
 
@@ -13,6 +13,7 @@ It allows modpack creators to lock recipes, items, blocks, dimensions, mobs, and
 * Block staging
 * Dimension staging
 * Mob staging
+* Structure staging
 * Loot staging
 * Multiplayer support
 * Custom messages
@@ -99,6 +100,27 @@ Each mob supports configurable spawn radius.
 
 ---
 
+## Structure Staging
+
+Structures can be locked behind progression stages.
+
+Players without the required stage:
+
+* cannot enter staged structures
+* are teleported to the nearest safe location outside the structure
+
+Each structure supports configurable buffer zones.
+
+Examples:
+
+* Villages
+* Pillager Outposts
+* Bastions
+* Strongholds
+* Modded structures
+
+---
+
 ## Loot Staging
 
 Staged items are removed from loot before loot generation for players who have not unlocked the required stage.
@@ -126,62 +148,38 @@ Example:
   "stage": "iron_age",
   "display_name": "Iron Age",
 
-  "messages": {
-    "item_use": "You need {stage} to use {item}.",
-    "block_use": "You need {stage} to interact with this block.",
-    "dimension": "You need {stage} to enter this dimension.",
-    "mob_use": "You need {stage} before interacting with this creature."
-  },
-
   "recipes": [
-    "minecraft:iron_pickaxe",
-    "minecraft:iron_helmet",
-    "minecraft:bucket"
+    "minecraft:iron_pickaxe"
   ],
 
   "items": [
     "minecraft:iron_pickaxe",
-    "minecraft:iron_ore",
-    "minecraft:iron_sword",
-    "minecraft:iron_helmet",
-    "minecraft:bucket",
     "minecraft:diamond"
   ],
 
   "blocks": [
     {
       "block": "minecraft:iron_ore"
-    },
-    {
-      "block": "minecraft:deepslate_iron_ore"
-    },
-    {
-      "block": "minecraft:iron_block"
     }
   ],
 
   "dimensions": [
-    "minecraft:the_nether",
-    "minecraft:the_end"
+    "minecraft:the_nether"
   ],
 
   "mobs": [
     {
       "mob": "minecraft:blaze",
       "radius": 128
-    },
-    {
-      "mob": "minecraft:enderman",
-      "radius": 96
-    },
-    {
-      "mob": "minecraft:wither_skeleton",
-      "radius": 128
-    },
-    {
-      "mob": "minecraft:piglin_brute",
-      "radius": 128
     }
+  ],
+
+  "structures": [
+    {
+      "structure": "minecraft:pillager_outpost",
+      "buffer": 6
+    },
+    "minecraft:swamp_hut"
   ]
 }
 ```
@@ -194,23 +192,11 @@ Example:
 
 Unique stage identifier.
 
-Example:
-
-```json
-"stage": "iron_age"
-```
-
 ---
 
 ## display_name
 
 Readable stage name shown to players.
-
-Example:
-
-```json
-"display_name": "Iron Age"
-```
 
 ---
 
@@ -224,13 +210,6 @@ Supported keys:
 * block_use
 * dimension
 * mob_use
-
-Available placeholders:
-
-* `{stage}`
-* `{item}`
-* `{block}`
-* `{mob}`
 
 ---
 
@@ -267,19 +246,39 @@ Each mob supports:
 * `mob`
 * `radius`
 
-Example:
-
-```json
-{
-  "mob": "minecraft:blaze",
-  "radius": 128
-}
-```
-
-If radius is omitted, default radius is:
+Default radius:
 
 ```text
 64 blocks
+```
+
+---
+
+## structures
+
+List of staged structures.
+
+Supports both simple and advanced syntax.
+
+Simple:
+
+```json
+"minecraft:swamp_hut"
+```
+
+Advanced:
+
+```json
+{
+  "structure": "minecraft:pillager_outpost",
+  "buffer": 6
+}
+```
+
+Default structure buffer:
+
+```text
+3 blocks
 ```
 
 ---
@@ -298,7 +297,6 @@ Stage definitions and player progression are synchronized between server and cli
 
 # Planned Features
 
-* Dungeon staging
 * Trading staging
 * Bartering staging
 * Stage dependencies
