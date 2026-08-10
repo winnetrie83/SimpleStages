@@ -1,317 +1,162 @@
 # Simple Stages
 
-Simple Stages is a lightweight, highly configurable progression system for Minecraft modpacks built for NeoForge.
+Simple Stages is a lightweight progression mod for Minecraft modpacks and servers running NeoForge.
 
-It allows modpack creators to lock recipes, items, blocks, dimensions, mobs, structures, and more behind progression stages using simple JSON files.
+Version 1.3 introduces a fully in-game, server-authoritative Stage Manager. Stage definitions no longer require datapacks: admins can create and edit progression directly while playing, then export the finished setup as modpack defaults.
 
----
+## Main features
 
-# Features
+- In-game stage editor for OP/admin players
+- Recipe staging
+- Item staging
+- Block staging with optional behavioural masks
+- Dimension staging
+- Mob staging with configurable spawn radius
+- Structure staging with configurable buffer
+- Loot filtering for staged items
+- Multiplayer synchronization
+- Custom lock messages
+- Modpack-friendly default configuration
 
-* Recipe staging
-* Item staging
-* Block staging
-* Dimension staging
-* Mob staging
-* Structure staging
-* Loot staging
-* Multiplayer support
-* Custom messages
-* Data-driven JSON configuration
+## In-game Stage Manager
 
----
-
-# Supported Stage Systems
-
-## Recipe Staging
-
-Recipes can be hidden and locked until the required stage is unlocked.
-
-Example:
-
-* Lock iron pickaxe recipe until `iron_age`
-
----
-
-## Item Staging
-
-Items can be locked from usage.
-
-Locked items:
-
-* show as **Unidentified Item**
-* display required stage in tooltip
-* cannot be used until unlocked
-
-Examples:
-
-* tools
-* weapons
-* armor
-* resources
-
----
-
-## Block Staging
-
-Blocks can be locked behind stages.
-
-Players without the required stage:
-
-* cannot mine staged blocks
-* cannot interact with staged blocks
-
-Examples:
-
-* ores
-* machines
-* storage blocks
-
----
-
-## Dimension Staging
-
-Dimensions can be restricted.
-
-Players without the required stage:
-
-* cannot enter staged dimensions
-* are teleported back if they somehow enter
-
-Examples:
-
-* Nether
-* End
-* modded dimensions
-
----
-
-## Mob Staging
-
-Mobs can be stage-locked.
-
-Players without the required stage:
-
-* cannot attack staged mobs
-* cannot interact with staged mobs
-* staged mobs cannot spawn near them
-
-Each mob supports configurable spawn radius.
-
----
-
-## Structure Staging
-
-Structures can be locked behind progression stages.
-
-Players without the required stage:
-
-* cannot enter staged structures
-* are teleported to the nearest safe location outside the structure
-
-Each structure supports configurable buffer zones.
-
-Examples:
-
-* Villages
-* Pillager Outposts
-* Bastions
-* Strongholds
-* Modded structures
-
----
-
-## Loot Staging
-
-Staged items are removed from loot before loot generation for players who have not unlocked the required stage.
-
-Works with:
-
-* chests
-* structures
-* loot tables
-
----
-
-# Stage Definitions
-
-Stage definitions are JSON files placed in:
+Open the editor with:
 
 ```text
-data/<namespace>/stages/
+/stage editor
 ```
 
-Example:
+The editor supports creating, renaming, duplicating and deleting stages. Each stage can configure recipes, items, blocks, dimensions, mobs, structures and messages.
 
-```json
-{
-  "stage": "iron_age",
-  "display_name": "Iron Age",
+Registry IDs do not normally need to be typed manually. The editor provides searchable browsers for the supported categories. Manual ID fields remain available as an advanced fallback.
 
-  "recipes": [
-    "minecraft:iron_pickaxe"
-  ],
+### Recipe browser
 
-  "items": [
-    "minecraft:iron_pickaxe",
-    "minecraft:diamond"
-  ],
+Recipe selection follows a result-first workflow:
 
-  "blocks": [
-    {
-      "block": "minecraft:iron_ore"
-    }
-  ],
+1. Open the Recipes tab and choose **Browse...**.
+2. Pick an item from the searchable item catalog.
+3. Simple Stages asks the server for loaded recipes that produce that item.
+4. Select the recipes that should require the stage.
+5. Save the stage.
 
-  "dimensions": [
-    "minecraft:the_nether"
-  ],
+This keeps the editor practical in large modpacks where recipe IDs are difficult to know by memory.
 
-  "mobs": [
-    {
-      "mob": "minecraft:blaze",
-      "radius": 128
-    }
-  ],
+## Recipe staging
 
-  "structures": [
-    {
-      "structure": "minecraft:pillager_outpost",
-      "buffer": 6
-    },
-    "minecraft:swamp_hut"
-  ]
-}
-```
+Simple Stages supports the main vanilla progression paths, including:
 
----
+- crafting
+- stonecutting
+- smelting
+- blasting
+- smoking
+- campfire cooking
+- smithing
 
-# JSON Fields
+For furnace-family machines, a locked cooking recipe behaves as unavailable: input and fuel can be inserted, but the machine does not make progress until the recipe is available for the player's current stage view. This avoids output-slot rollback and inventory desynchronization.
 
-## stage
+Simple Stages is designed as a progression system, not as an anti-cheat layer for every possible automation mod. Modpacks that introduce hoppers, pipes, automated crafters or similar systems are encouraged to stage those progression tools as well.
 
-Unique stage identifier.
+## Item staging
 
----
+Staged items cannot be normally used by players who do not have the required stage. Item staging is intentionally based on the registered item type, so component-based variants such as individual potion effects remain grouped under their base item category.
 
-## display_name
+Staging both important recipes and their resulting items is a useful way to make progression more robust.
 
-Readable stage name shown to players.
+## Block staging and masks
 
----
+Blocks can either be hard-locked or disguised behind another block.
 
-## messages
+Without a mask, a staged block cannot be normally mined or interacted with before its stage is unlocked.
 
-Custom messages shown when stage restrictions apply.
-
-Supported keys:
-
-* item_use
-* block_use
-* dimension
-* mob_use
-
----
-
-## recipes
-
-List of locked recipes.
-
----
-
-## items
-
-List of staged items.
-
----
-
-## blocks
-
-List of staged blocks.
-
----
-
-## dimensions
-
-List of staged dimensions.
-
----
-
-## mobs
-
-List of staged mobs.
-
-Each mob supports:
-
-* `mob`
-* `radius`
-
-Default radius:
+With a mask, the hidden block behaves like the configured mask for the locked player. For example:
 
 ```text
-64 blocks
+Real block: minecraft:iron_ore
+Mask:       minecraft:stone
+Stage:      iron_age
 ```
 
----
+A player without `iron_age`:
 
-## structures
+- sees Stone instead of Iron Ore;
+- mines it using the mask block's mining behaviour;
+- receives the mask block's drops;
+- does not get a lock message that reveals the hidden block.
 
-List of staged structures.
+A player with `iron_age` sees and mines the real Iron Ore normally.
 
-Supports both simple and advanced syntax.
+This allows ores and other progression resources to exist in already-generated chunks without revealing them before the intended stage.
 
-Simple:
+## Other stage types
 
-```json
-"minecraft:swamp_hut"
-```
+### Dimensions
+Players can be prevented from entering dimensions until the required stage is unlocked.
 
-Advanced:
+### Mobs
+Mobs can be locked from interaction/attack and can use a configurable player proximity radius for spawn restrictions.
 
-```json
-{
-  "structure": "minecraft:pillager_outpost",
-  "buffer": 6
-}
-```
+### Structures
+Structures can be restricted with a configurable buffer around their bounds.
 
-Default structure buffer:
+### Loot
+Staged items are filtered from supported loot generation for players who do not yet have the required stage.
+
+## Player stage commands
 
 ```text
-3 blocks
+/stage add <player> <stage>
+/stage remove <player> <stage>
+/stage check <player> <stage>
+/stage list <player>
 ```
 
----
+Admin/editor utilities:
 
-# Multiplayer Support
+```text
+/stage editor
+/stage definitions list
+/stage definitions reload
+/stage definitions export-pack
+```
 
-Simple Stages fully supports multiplayer.
+Stage administration requires gamemaster/OP permission.
 
-Stage definitions and player progression are synchronized between server and clients to ensure:
+## Storage
 
-* proper tooltip rendering
-* correct item masking
-* consistent stage behavior
+Simple Stages owns its stage configuration directly. Datapack stage definitions are no longer used.
 
----
+Each world stores its editable configuration at:
 
-# Planned Features
+```text
+<world>/serverconfig/simplestages/stages.json
+```
 
-* Trading staging
-* Bartering staging
-* Stage dependencies
-* API for mod integration
+The file is managed by the mod and the in-game editor; manual editing is optional rather than required.
 
----
+## Shipping stages in a modpack
 
-# Requirements
+A modpack can provide defaults at:
 
-* Minecraft 1.21.x
-* NeoForge 26.2+
-* Java 21+
+```text
+defaultconfigs/simplestages/stages.json
+```
 
----
+When a world has no Simple Stages configuration yet, the defaults are copied into that world's `serverconfig` folder. Existing worlds are not overwritten by later changes to the pack defaults.
 
-# License
+Recommended workflow for a pack author:
+
+1. Build and test stages in-game.
+2. Use **Export pack defaults** in the Stage Manager or run `/stage definitions export-pack`.
+3. Ship the generated `defaultconfigs/simplestages/stages.json` with the modpack.
+
+## Requirements
+
+- Minecraft 26.2
+- NeoForge 26.2.x
+- Java 25
+
+## License
 
 All Rights Reserved

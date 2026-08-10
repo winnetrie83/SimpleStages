@@ -3,10 +3,20 @@
   "package": "be.winnetrie.mod.simplestages.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
-    "CraftingMenuMixin"
+    "CraftingMenuMixin",
+    "StonecutterMenuMixin",
+    "CampfireBlockEntityMixin",
+    "ItemCombinerMenuMixin",
+    "AbstractFurnaceBlockEntityAccessor",
+    "AbstractFurnaceBlockEntityMixin",
+    "AbstractContainerMenuMixin",
+    "AbstractFurnaceMenuMixin",
+    "MaskedBlockStateMixin",
+    "MaskedBlockBreakMixin"
   ],
   "client": [
-    "ItemStackClientMixin"
+    "ItemStackClientMixin",
+    "BlockStateModelSetMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -1,5 +1,6 @@
 package be.winnetrie.mod.simplestages.event;
 
+import be.winnetrie.mod.simplestages.stage.BlockMaskHelper;
 import be.winnetrie.mod.simplestages.stage.StageLockHelper;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -11,6 +12,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEquipmentChangeEvent;
@@ -33,7 +35,6 @@ public class LockedItemEvents {
         if (!StageLockHelper.isLocked(player, event.getItemStack())) {
             return;
         }
-
         sendLockedMessage(player, StageLockHelper.getItemUseMessage(event.getItemStack()));
 
         event.setCanceled(true);
@@ -43,21 +44,25 @@ public class LockedItemEvents {
     @SubscribeEvent
     public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         Player player = event.getEntity();
-
-        Block block = event.getLevel()
-                .getBlockState(event.getPos())
-                .getBlock();
-
+        BlockState state = event.getLevel().getBlockState(event.getPos());
+        Block block = state.getBlock();
         Identifier blockId = BuiltInRegistries.BLOCK.getKey(block);
 
         if (StageLockHelper.isBlockLocked(player, blockId)) {
-            sendLockedMessage(player, StageLockHelper.getBlockUseMessage(blockId));
-
-            event.setUseBlock(TriState.FALSE);
-            event.setUseItem(TriState.FALSE);
-            event.setCanceled(true);
-            event.setCancellationResult(InteractionResult.FAIL);
-            return;
+            if (BlockMaskHelper.hasActiveMask(player, state)) {
+                // Do not expose the real block's UI/interaction. The mask is a
+                // disguise, so no locked-stage message is shown either.
+                // Item use stays available (placing a torch against "stone",
+                // for example), unless the held item is itself staged below.
+                event.setUseBlock(TriState.FALSE);
+            } else {
+                sendLockedMessage(player, StageLockHelper.getBlockUseMessage(blockId));
+                event.setUseBlock(TriState.FALSE);
+                event.setUseItem(TriState.FALSE);
+                event.setCanceled(true);
+                event.setCancellationResult(InteractionResult.FAIL);
+                return;
+            }
         }
 
         if (!StageLockHelper.isLocked(player, event.getItemStack())) {
@@ -65,7 +70,6 @@ public class LockedItemEvents {
         }
 
         sendLockedMessage(player, StageLockHelper.getItemUseMessage(event.getItemStack()));
-
         event.setUseItem(TriState.FALSE);
         event.setCanceled(true);
         event.setCancellationResult(InteractionResult.FAIL);
@@ -74,19 +78,22 @@ public class LockedItemEvents {
     @SubscribeEvent
     public static void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
         Player player = event.getEntity();
-
-        Block block = event.getLevel()
-                .getBlockState(event.getPos())
-                .getBlock();
-
+        BlockState state = event.getLevel().getBlockState(event.getPos());
+        Block block = state.getBlock();
         Identifier blockId = BuiltInRegistries.BLOCK.getKey(block);
 
         if (StageLockHelper.isBlockLocked(player, blockId)) {
-            sendLockedMessage(player, StageLockHelper.getBlockUseMessage(blockId));
-
-            event.setUseItem(TriState.FALSE);
-            event.setCanceled(true);
-            return;
+            if (BlockMaskHelper.hasActiveMask(player, state)) {
+                // Suppress the real block's attack callback, but deliberately do
+                // NOT cancel mining. MaskedBlockStateMixin supplies mask mining
+                // progress and MaskedBlockBreakMixin supplies mask drops.
+                event.setUseBlock(TriState.FALSE);
+            } else {
+                sendLockedMessage(player, StageLockHelper.getBlockUseMessage(blockId));
+                event.setUseItem(TriState.FALSE);
+                event.setCanceled(true);
+                return;
+            }
         }
 
         if (!StageLockHelper.isLocked(player, event.getItemStack())) {
@@ -94,7 +101,6 @@ public class LockedItemEvents {
         }
 
         sendLockedMessage(player, StageLockHelper.getItemUseMessage(event.getItemStack()));
-
         event.setUseItem(TriState.FALSE);
         event.setCanceled(true);
     }
@@ -106,7 +112,6 @@ public class LockedItemEvents {
         if (!StageLockHelper.isLocked(player, player.getMainHandItem())) {
             return;
         }
-
         sendLockedMessage(player, StageLockHelper.getItemUseMessage(player.getMainHandItem()));
 
         event.setCanceled(true);
@@ -121,7 +126,6 @@ public class LockedItemEvents {
         if (!StageLockHelper.isLocked(player, event.getItem())) {
             return;
         }
-
         sendLockedMessage(player, StageLockHelper.getItemUseMessage(event.getItem()));
         event.setCanceled(true);
     }
@@ -155,23 +159,19 @@ public class LockedItemEvents {
             }
 
             ItemStack equipped = player.getItemBySlot(slot);
-
             if (!StageLockHelper.isLocked(player, equipped)) {
                 continue;
             }
 
             hasLockedArmor = true;
-
             player.setItemSlot(slot, ItemStack.EMPTY);
 
             ItemStack copy = equipped.copy();
-
             if (!player.getInventory().add(copy)) {
                 serverPlayer.drop(copy, false);
             }
 
             serverPlayer.containerMenu.broadcastChanges();
-
             sendArmorLockedMessage(serverPlayer, StageLockHelper.getItemUseMessage(equipped));
         }
 

@@ -1,6 +1,7 @@
 package be.winnetrie.mod.simplestages.network;
 
 import be.winnetrie.mod.simplestages.SimpleStages;
+import be.winnetrie.mod.simplestages.client.ClientBlockMaskRenderHelper;
 import be.winnetrie.mod.simplestages.stage.ClientStageCache;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -12,7 +13,8 @@ import java.util.List;
 
 public record SyncStagesPayload(List<String> stages) implements CustomPacketPayload {
 
-    public static final Type<SyncStagesPayload> TYPE = new Type<>(Identifier.fromNamespaceAndPath(SimpleStages.MODID, "sync_stages"));
+    public static final Type<SyncStagesPayload> TYPE =
+            new Type<>(Identifier.fromNamespaceAndPath(SimpleStages.MODID, "sync_stages"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, SyncStagesPayload> STREAM_CODEC =
             StreamCodec.of(
@@ -25,17 +27,21 @@ public record SyncStagesPayload(List<String> stages) implements CustomPacketPayl
                     buf -> {
                         int size = buf.readVarInt();
                         List<String> stages = new ArrayList<>();
-
                         for (int i = 0; i < size; i++) {
                             stages.add(buf.readUtf());
                         }
-
                         return new SyncStagesPayload(stages);
                     }
             );
 
-    public static void handle(SyncStagesPayload payload, net.neoforged.neoforge.network.handling.IPayloadContext context) {
-        context.enqueueWork(() -> ClientStageCache.setStages(payload.stages()));
+    public static void handle(
+            SyncStagesPayload payload,
+            net.neoforged.neoforge.network.handling.IPayloadContext context
+    ) {
+        context.enqueueWork(() -> {
+            ClientStageCache.setStages(payload.stages());
+            ClientBlockMaskRenderHelper.refreshWorld();
+        });
     }
 
     @Override

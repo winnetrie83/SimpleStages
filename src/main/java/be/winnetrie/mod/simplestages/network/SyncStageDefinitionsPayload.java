@@ -1,6 +1,7 @@
 package be.winnetrie.mod.simplestages.network;
 
 import be.winnetrie.mod.simplestages.SimpleStages;
+import be.winnetrie.mod.simplestages.client.ClientBlockMaskRenderHelper;
 import be.winnetrie.mod.simplestages.stage.data.StageDefinitionManager;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -12,6 +13,8 @@ import java.util.Map;
 
 public record SyncStageDefinitionsPayload(
         Map<String, String> itemStages,
+        Map<String, String> blockStages,
+        Map<String, String> blockMasks,
         Map<String, String> displayNames
 ) implements CustomPacketPayload {
 
@@ -21,41 +24,49 @@ public record SyncStageDefinitionsPayload(
     public static final StreamCodec<RegistryFriendlyByteBuf, SyncStageDefinitionsPayload> STREAM_CODEC =
             StreamCodec.of(
                     (buf, payload) -> {
-                        buf.writeVarInt(payload.itemStages.size());
-                        payload.itemStages.forEach((item, stage) -> {
-                            buf.writeUtf(item);
-                            buf.writeUtf(stage);
-                        });
-
-                        buf.writeVarInt(payload.displayNames.size());
-                        payload.displayNames.forEach((stage, displayName) -> {
-                            buf.writeUtf(stage);
-                            buf.writeUtf(displayName);
-                        });
+                        writeStringMap(buf, payload.itemStages);
+                        writeStringMap(buf, payload.blockStages);
+                        writeStringMap(buf, payload.blockMasks);
+                        writeStringMap(buf, payload.displayNames);
                     },
-                    buf -> {
-                        Map<String, String> itemStages = new HashMap<>();
-                        int itemSize = buf.readVarInt();
-
-                        for (int i = 0; i < itemSize; i++) {
-                            itemStages.put(buf.readUtf(), buf.readUtf());
-                        }
-
-                        Map<String, String> displayNames = new HashMap<>();
-                        int displaySize = buf.readVarInt();
-
-                        for (int i = 0; i < displaySize; i++) {
-                            displayNames.put(buf.readUtf(), buf.readUtf());
-                        }
-
-                        return new SyncStageDefinitionsPayload(itemStages, displayNames);
-                    }
+                    buf -> new SyncStageDefinitionsPayload(
+                            readStringMap(buf),
+                            readStringMap(buf),
+                            readStringMap(buf),
+                            readStringMap(buf)
+                    )
             );
 
-    public static void handle(SyncStageDefinitionsPayload payload, net.neoforged.neoforge.network.handling.IPayloadContext context) {
-        context.enqueueWork(() ->
-                StageDefinitionManager.applyClientSync(payload.itemStages(), payload.displayNames())
-        );
+    private static void writeStringMap(RegistryFriendlyByteBuf buf, Map<String, String> map) {
+        buf.writeVarInt(map.size());
+        map.forEach((key, value) -> {
+            buf.writeUtf(key);
+            buf.writeUtf(value);
+        });
+    }
+
+    private static Map<String, String> readStringMap(RegistryFriendlyByteBuf buf) {
+        int size = buf.readVarInt();
+        Map<String, String> result = new HashMap<>(size);
+        for (int i = 0; i < size; i++) {
+            result.put(buf.readUtf(), buf.readUtf());
+        }
+        return result;
+    }
+
+    public static void handle(
+            SyncStageDefinitionsPayload payload,
+            net.neoforged.neoforge.network.handling.IPayloadContext context
+    ) {
+        context.enqueueWork(() -> {
+            StageDefinitionManager.applyClientSync(
+                    payload.itemStages(),
+                    payload.blockStages(),
+                    payload.blockMasks(),
+                    payload.displayNames()
+            );
+            ClientBlockMaskRenderHelper.refreshWorld();
+        });
     }
 
     @Override
