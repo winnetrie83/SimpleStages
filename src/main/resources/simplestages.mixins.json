@@ -12,11 +12,14 @@
     "AbstractContainerMenuMixin",
     "AbstractFurnaceMenuMixin",
     "MaskedBlockStateMixin",
-    "MaskedBlockBreakMixin"
+    "MaskedBlockBreakMixin",
+    "MaskedLevelBlockStateMixin",
+    "MaskedServerInteractionMixin"
   ],
   "client": [
     "ItemStackClientMixin",
-    "BlockStateModelSetMixin"
+    "BlockStateModelSetMixin",
+    "MaskedClientInteractionMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -53,7 +53,13 @@ public abstract class AbstractFurnaceBlockEntityMixin implements FurnaceStageVis
 
     @Override
     public boolean simplestages$hasVisibleStage(String stage) {
-        return stage != null && this.simplestages$visibleStages.contains(stage);
+        // Mixin instance-field initializers are not a safe lifecycle guarantee
+        // for already-constructed target instances. A freshly loaded furnace can
+        // therefore reach its first server tick before a player stage snapshot
+        // has ever been attached. Treat that state as an empty stage snapshot.
+        return stage != null
+                && this.simplestages$visibleStages != null
+                && this.simplestages$visibleStages.contains(stage);
     }
 
     @Inject(method = "serverTick", at = @At("HEAD"))
